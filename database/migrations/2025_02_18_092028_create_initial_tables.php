@@ -22,7 +22,7 @@ return new class extends Migration
         // Create detail_laporan table
         Schema::create('detail_laporan', function (Blueprint $table) {
             $table->id();
-            $table->string('nmr_laporan', 10);
+            $table->string('nmr_laporan', 15);
             $table->dateTime('waktu_dihubungi');
             $table->string('ruangan_unit', 20);
             $table->string('petugas_pelapor', 20);
@@ -36,13 +36,13 @@ return new class extends Migration
             $table->integer('denominator')->nullable();
             $table->string('petugas_it', 20)->nullable();
             $table->string('nomor_pelapor', 20)->nullable();
-            $table->enum('status_laporan', ['Selesai', 'Ditolak', 'Diproses']);
+            $table->enum('status_laporan', ['Selesai', 'Ditolak', 'Diproses'])->default('Diproses');
             $table->timestamps();
 
             $table->foreign('petugas_it')
-                  ->references('nama_petugas_it')
-                  ->on('user')
-                  ->onDelete('set null');
+                ->references('nama_petugas_it')
+                ->on('user')
+                ->onDelete('set null');
         });
 
         // Create activity table
