@@ -4,23 +4,30 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DetailLaporanResource\Pages;
 use App\Models\DetailLaporan;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Forms\Components\Placeholder;
 use Filament\Resources\Resource;
+use Filament\Forms\Form;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Collection;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Carbon\Carbon;
-use Filament\Notifications\Notification;
 use Livewire\WithPagination;
+use App\Filament\Exports\DetailLaporanExporter;
+use Filament\Tables\Actions\ExportBulkAction;
+use Illuminate\Database\Eloquent\Builder;
+use PhpParser\Node\Stmt\Label;
 
 class DetailLaporanResource extends Resource
 {
@@ -29,17 +36,115 @@ class DetailLaporanResource extends Resource
     protected static ?string $model = DetailLaporan::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationLabel = 'Detail Laporan';
-
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                TextInput::make('nmr_laporan')
+                    ->label('Nomor laporan')
+                    ->required()
+                    ->readOnly(),
+                DateTimePicker::make('waktu_dihubungi')
+                    ->required()
+                    ->readOnly(),
+                TextInput::make('ruangan_unit')
+                    ->required()
+                    ->maxLength(20),
+                TextInput::make('petugas_pelapor')
+                    ->required()
+                    ->maxLength(20),
+                TextInput::make('jenis_kerusakan')
+                    ->required()
+                    ->maxLength(20),
+                Textarea::make('permasalahan')
+                    ->required()
+                    ->maxLength(65535),
+                Textarea::make('tindakan')
+                    ->maxLength(65535),
+                DateTimePicker::make('waktu_selesai')
+                    ->readOnly(),
+                Select::make('kriteria')
+                    ->options([
+                        'Internal' => 'Internal',
+                        'Membutuhkan Vendor' => 'Membutuhkan Vendor'
+                    ]),
+                TextInput::make('waktu_pengerjaan')
+                    ->readOnly(),
+                Select::make('petugas_it')
+                    ->label('Petugas IT')
+                    ->relationship('petugasIT', 'nama_petugas_it'),
+                TextInput::make('nomor_pelapor')
+                    ->readOnly(),
+                Select::make('status_laporan')
+                    ->options([
+                        'Selesai' => 'Selesai',
+                        'Ditolak' => 'Ditolak',
+                        'Diproses' => 'Diproses',
+                    ])
+                    ->required(),
+            ]);
+    }
     public static function table(Table $table): Table
     {
         return $table
-            ->poll('5s')
+            ->poll('10s')
+            ->deferLoading()
+            ->heading('Detail Laporan Helpdesk IT')
+            ->description('Daftar seluruh laporan permasalahan IT yang telah diajukan')
+            ->headerActions([
+                ExportAction::make()
+                ->exporter(DetailLaporanExporter::class)
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status_laporan', 'Selesai'))
+                ->label('Export All')
+                ->icon('heroicon-o-arrow-down-tray')
+            ])
             ->columns([
-                TextColumn::make('nmr_laporan')->searchable()->sortable()->label('Nomor Laporan'),
-                TextColumn::make('waktu_dihubungi')->dateTime()->sortable()->label('Waktu Dihubungi'),
-                TextColumn::make('ruangan_unit')->searchable()->label('Ruangan/Unit'),
-                TextColumn::make('petugas_pelapor')->searchable()->label('Petugas Pelapor'),
-                TextColumn::make('jenis_kerusakan')->searchable()->label('Jenis Kerusakan'),
+                TextColumn::make('nmr_laporan')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Nomor Laporan'),
+                TextColumn::make('waktu_dihubungi')
+                    ->dateTime()
+                    ->sortable()
+                    ->label('Waktu Dihubungi'),
+                TextColumn::make('ruangan_unit')
+                    ->searchable()
+                    ->label('Ruangan/Unit')
+                    ->alignCenter()
+                    ->toggleable(),
+                TextColumn::make('petugas_pelapor')
+                    ->label('Petugas Pelapor')
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('jenis_kerusakan')
+                    ->label('Jenis Kerusakan')
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('permasalahan')
+                    ->label('Permasalahan')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('tindakan')
+                    ->label('Tindakan')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('waktu_selesai')
+                    ->dateTime()
+                    ->label('Waktu Selesai')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('kriteria')
+                    ->label('Kriteria')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('waktu_pengerjaan')
+                    ->dateTime()
+                    ->label('Durasi Pengerjaan')
+                    ->alignCenter()
+                    ->placeholder('00:00'),
+                TextColumn::make('petugas_it')
+                    ->searchable()
+                    ->label('Petugas IT')
+                    ->placeholder('Belum di tindak lanjut.'),
+                TextColumn::make('nomor_pelapor')
+                    ->label('Nomor Pelapor')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status_laporan')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -48,9 +153,20 @@ class DetailLaporanResource extends Resource
                         'Diproses' => 'warning',
                     })
                     ->label('Status'),
-                TextColumn::make('petugas_it')->searchable()->label('Petugas IT'),
-                TextColumn::make('waktu_selesai')->dateTime()->label('Waktu Selesai'),
             ])
+            ->actions([
+                ActionGroup::make([
+                    // ViewAction::make(),
+                    EditAction::make(),
+                ])->icon('heroicon-m-ellipsis-horizontal'),
+            ])
+            ->groups([
+                'status_laporan',
+                'petugas_it'
+            ])
+            ->toggleColumnsTriggerAction(
+                fn (Action $action) => $action
+            )
             ->filters([
                 SelectFilter::make('status_laporan')
                     ->options([
@@ -69,86 +185,34 @@ class DetailLaporanResource extends Resource
                             ->when($data['from'], fn($query) => $query->whereDate('waktu_dihubungi', '>=', $data['from']))
                             ->when($data['to'], fn($query) => $query->whereDate('waktu_dihubungi', '<=', $data['to']))
                     ),
-            ])
+                ],layout: FiltersLayout::Modal)
             ->bulkActions([
-                Tables\Actions\BulkAction::make('markCompleted')
-                    ->label('Tandai Selesai')
-                    ->requiresConfirmation()
-                    ->action(function (Collection $records) {
-                        $records->each->update(['status_laporan' => 'Selesai']);
-                        // Emit event untuk refresh tabel
-                        \Livewire\Livewire::emit('refreshTable');
-                    })
-                    ->color('success')
-                    ->icon('heroicon-o-check-circle'),
-                Tables\Actions\BulkAction::make('exportToExcel')
-                    ->label('Ekspor ke Excel')
-                    ->action(fn(Collection $records) => static::exportToExcel($records))
-                    ->color('primary'),
-                // ->icon('heroicon-o-cloud-download'),
-                Tables\Actions\BulkAction::make('exportToPdf')
-                    ->label('Ekspor ke PDF')
-                    ->action(fn(Collection $records) => static::exportToPdf($records))
-                    ->color('danger')
-                // ->icon('heroicon-o-share'),
-            ]);
+                    Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\DeleteBulkAction::make(),
+                        ExportBulkAction::make()
+                            ->exporter(DetailLaporanExporter::class)
+                            ->label('Export selected'),
+                    ])
+                ]
+            )
+            ->striped()
+            ->emptyStateIcon('heroicon-o-computer-desktop')
+            ->emptyStateHeading('Belum Ada Laporan')
+            ->emptyStateDescription('Belum ada laporan permasalahan IT yang diajukan');
+
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListDetailLaporans::route('/'),
+            // 'view' => Pages\ViewDetailLaporan::route('/{record}'),
+            'edit' => Pages\EditDetailLaporan::route('/{record}/edit'),
         ];
     }
 
-    public static function exportToExcel(Collection $records): StreamedResponse
+    public static function getNavigationBadge(): ?string
     {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Header
-        $sheet->setCellValue('A1', 'Nomor Laporan');
-        $sheet->setCellValue('B1', 'Waktu Dihubungi');
-        $sheet->setCellValue('C1', 'Ruangan/Unit');
-        $sheet->setCellValue('D1', 'Petugas Pelapor');
-        $sheet->setCellValue('E1', 'Jenis Kerusakan');
-        $sheet->setCellValue('F1', 'Status Laporan');
-        $sheet->setCellValue('G1', 'Petugas IT');
-        $sheet->setCellValue('H1', 'Waktu Selesai');
-
-        // Data
-        $row = 2;
-        foreach ($records as $record) {
-            $sheet->setCellValue('A' . $row, $record->nmr_laporan);
-            $sheet->setCellValue('B' . $row, Carbon::parse($record->waktu_dihubungi)->format('d-m-Y H:i:s'));
-            $sheet->setCellValue('C' . $row, $record->ruangan_unit);
-            $sheet->setCellValue('D' . $row, $record->petugas_pelapor);
-            $sheet->setCellValue('E' . $row, $record->jenis_kerusakan);
-            $sheet->setCellValue('F' . $row, $record->status_laporan);
-            $sheet->setCellValue('G' . $row, $record->petugas_it);
-            $sheet->setCellValue('H' . $row, Carbon::parse($record->waktu_selesai)->format('d-m-Y H:i:s'));
-            $row++;
-        }
-
-        $writer = new Xlsx($spreadsheet);
-        $response = new StreamedResponse(function () use ($writer) {
-            $writer->save('php://output');
-        });
-
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->headers->set('Content-Disposition', 'attachment;filename="detail_laporan.xlsx"');
-        $response->headers->set('Cache-Control', 'max-age=0');
-
-        return $response;
-    }
-
-    public static function exportToPdf(Collection $records)
-    {
-        $data = [
-            'records' => $records,
-        ];
-
-        $pdf = Pdf::loadView('exports.detail_laporan', $data);
-        return $pdf->download('detail_laporan.pdf');
+        return static::getModel()::count();
     }
 }
