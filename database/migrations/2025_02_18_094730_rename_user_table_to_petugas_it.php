@@ -13,13 +13,13 @@ return new class extends Migration
             $table->dropForeign(['petugas_it']);
         });
 
-        // Rename tabel
+        // Rename tabel user ke petugas_it
         Schema::rename('user', 'petugas_it');
 
-        // Buat ulang foreign key
+        // Perbarui foreign key agar tetap menggunakan id
         Schema::table('detail_laporan', function (Blueprint $table) {
             $table->foreign('petugas_it')
-                  ->references('nama_petugas_it')
+                  ->references('id')
                   ->on('petugas_it')
                   ->onDelete('set null');
         });
@@ -27,18 +27,18 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Hapus foreign key
+        // Hapus foreign key sebelum rename kembali tabel
         Schema::table('detail_laporan', function (Blueprint $table) {
             $table->dropForeign(['petugas_it']);
         });
 
-        // Rename kembali
+        // Rename tabel kembali ke user
         Schema::rename('petugas_it', 'user');
 
-        // Buat ulang foreign key
+        // Buat ulang foreign key yang mengarah ke tabel user
         Schema::table('detail_laporan', function (Blueprint $table) {
             $table->foreign('petugas_it')
-                  ->references('nama_petugas_it')
+                  ->references('id')
                   ->on('user')
                   ->onDelete('set null');
         });

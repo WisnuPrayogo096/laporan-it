@@ -34,8 +34,10 @@ class DetailLaporanResource extends Resource
     use WithPagination;
 
     protected static ?string $model = DetailLaporan::class;
+    protected static ?string $navigationGroup = 'Features';
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationLabel = 'Detail Laporan';
+    protected static ?int $navigationSort = 1;
     public static function form(Form $form): Form
     {
         return $form
@@ -87,7 +89,7 @@ class DetailLaporanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->poll('10s')
+            ->poll('5s')
             ->deferLoading()
             ->heading('Detail Laporan Helpdesk IT')
             ->description('Daftar seluruh laporan permasalahan IT yang telah diajukan')
@@ -98,6 +100,7 @@ class DetailLaporanResource extends Resource
                 ->label('Export All')
                 ->icon('heroicon-o-arrow-down-tray')
             ])
+            ->defaultSort('waktu_dihubungi', 'desc')
             ->columns([
                 TextColumn::make('nmr_laporan')
                     ->searchable()
@@ -105,11 +108,12 @@ class DetailLaporanResource extends Resource
                     ->label('Nomor Laporan'),
                 TextColumn::make('waktu_dihubungi')
                     ->dateTime()
-                    ->sortable()
+                    ->sortable('desc')
                     ->label('Waktu Dihubungi'),
                 TextColumn::make('ruangan_unit')
                     ->searchable()
                     ->label('Ruangan/Unit')
+                    ->sortable()
                     ->alignCenter()
                     ->toggleable(),
                 TextColumn::make('petugas_pelapor')
@@ -134,12 +138,13 @@ class DetailLaporanResource extends Resource
                     ->label('Kriteria')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('waktu_pengerjaan')
-                    ->dateTime()
+                    ->time()
                     ->label('Durasi Pengerjaan')
                     ->alignCenter()
-                    ->placeholder('00:00'),
+                    ->placeholder('00:00:00'),
                 TextColumn::make('petugas_it')
                     ->searchable()
+                    ->sortable()
                     ->label('Petugas IT')
                     ->placeholder('Belum di tindak lanjut.'),
                 TextColumn::make('nomor_pelapor')
@@ -156,7 +161,7 @@ class DetailLaporanResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-                    // ViewAction::make(),
+                    ViewAction::make()->modal(),
                     EditAction::make(),
                 ])->icon('heroicon-m-ellipsis-horizontal'),
             ])

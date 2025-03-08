@@ -9,6 +9,7 @@ class PetugasIT extends Model
     protected $table = 'petugas_it';
 
     protected $fillable = [
+        'id',
         'nomor_petugas',
         'nama_petugas_it',
         'jml_selesai',

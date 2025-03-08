@@ -22,6 +22,12 @@ class PetugasItSeeder extends Seeder
                 'nama_petugas_it' => 'Eko Wahyu',
                 'created_at' => now(),
                 'updated_at' => now(),
+            ],
+            [
+                'nomor_petugas' => '6282235382030',
+                'nama_petugas_it' => 'Wisnu Prayogo',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         ]);
     }

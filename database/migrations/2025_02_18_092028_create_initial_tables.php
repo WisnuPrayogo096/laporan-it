@@ -10,7 +10,7 @@ return new class extends Migration
     {
         // Create user table
         Schema::create('user', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // Primary Key (Big Integer, Auto Increment)
             $table->string('nomor_petugas', 50)->unique();
             $table->string('nama_petugas_it', 100)->unique();
             $table->integer('jml_selesai')->default(0);
@@ -34,13 +34,14 @@ return new class extends Migration
             $table->time('waktu_pengerjaan')->nullable();
             $table->integer('numerator')->nullable();
             $table->integer('denominator')->nullable();
-            $table->string('petugas_it', 20)->nullable();
+            $table->unsignedBigInteger('petugas_it')->nullable(); // Ubah ke tipe ID dari user
             $table->string('nomor_pelapor', 20)->nullable();
-            $table->enum('status_laporan', ['Selesai', 'Ditolak', 'Diproses'])->default('Diproses');
+            $table->enum('status_laporan', ['Dalam Antrean', 'Diproses', 'Belum Dikonfirmasi', 'Selesai', 'Ditolak'])->default('Dalam Antrean');
             $table->timestamps();
 
+            // Foreign key constraint ke tabel user
             $table->foreign('petugas_it')
-                ->references('nama_petugas_it')
+                ->references('id')
                 ->on('user')
                 ->onDelete('set null');
         });

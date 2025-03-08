@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ListDetailLaporans extends ListRecords
 {
     protected static string $resource = DetailLaporanResource::class;
+    protected static ?string $title = 'Detail Laporan';
 
     protected function getHeaderActions(): array
     {

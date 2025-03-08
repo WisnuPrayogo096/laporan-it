@@ -21,6 +21,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Resources\AdminResource\Pages\Settings;
+use Filament\FontProviders\GoogleFontProvider;
+use Filament\Support\Assets\Theme;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -67,7 +69,9 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s');
+            ->databaseNotificationsPolling('10s')
+            ->font('Poppins', provider: GoogleFontProvider::class)
+            ->brandName('IT RSU UMM');
 
     }
 }
