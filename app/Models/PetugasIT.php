@@ -19,6 +19,6 @@ class PetugasIT extends Model
 
     public function detailLaporan(): HasMany
     {
-        return $this->hasMany(DetailLaporan::class, 'petugas_it', 'nama_petugas_it');
+        return $this->hasMany(DetailLaporan::class, 'id_petugas_it', 'nama_petugas_it');
     }
 }

@@ -72,16 +72,19 @@ class DetailLaporanResource extends Resource
                     ]),
                 TextInput::make('waktu_pengerjaan')
                     ->readOnly(),
-                Select::make('petugas_it')
+                Select::make('id_petugas_it')
                     ->label('Petugas IT')
                     ->relationship('petugasIT', 'nama_petugas_it'),
                 TextInput::make('nomor_pelapor')
                     ->readOnly(),
                 Select::make('status_laporan')
                     ->options([
+                        'Dalam Antrean' => 'Dalam Antrean',
+                        'Diluar Jam Operasional' => 'Diluar Jam Operasional',
+                        'Diproses' => 'Diproses',
+                        'Belum Dikonfirmasi' => 'Belum Dikonfirmasi',
                         'Selesai' => 'Selesai',
                         'Ditolak' => 'Ditolak',
-                        'Diproses' => 'Diproses',
                     ])
                     ->required(),
             ]);
@@ -142,20 +145,23 @@ class DetailLaporanResource extends Resource
                     ->label('Durasi Pengerjaan')
                     ->alignCenter()
                     ->placeholder('00:00:00'),
-                TextColumn::make('petugas_it')
+                TextColumn::make('petugasIT.nama_petugas_it')
                     ->searchable()
                     ->sortable()
                     ->label('Petugas IT')
-                    ->placeholder('Belum di tindak lanjut.'),
+                    ->placeholder('Belum dapat teknisi.'),
                 TextColumn::make('nomor_pelapor')
                     ->label('Nomor Pelapor')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status_laporan')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
+                        'Dalam Antrean' => 'primary',
+                        'Diluar Jam Operasional' => 'danger',
+                        'Diproses' => 'warning',
+                        'Belum Dikonfirmasi' => 'info',
                         'Selesai' => 'success',
                         'Ditolak' => 'gray',
-                        'Diproses' => 'warning',
                     })
                     ->label('Status'),
             ])
@@ -175,9 +181,12 @@ class DetailLaporanResource extends Resource
             ->filters([
                 SelectFilter::make('status_laporan')
                     ->options([
+                        'Dalam Antrean' => 'Dalam Antrean',
+                        'Diluar Jam Operasional' => 'Diluar Jam Operasional',
+                        'Diproses' => 'Diproses',
+                        'Belum Dikonfirmasi' => 'Belum Dikonfirmasi',
                         'Selesai' => 'Selesai',
                         'Ditolak' => 'Ditolak',
-                        'Diproses' => 'Diproses',
                     ])
                     ->label('Status Laporan'),
                 Filter::make('waktu_dihubungi')

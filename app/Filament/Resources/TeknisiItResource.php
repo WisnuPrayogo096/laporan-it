@@ -56,8 +56,7 @@ class TeknisiItResource extends Resource
                     ->label('Ditolak'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
             ])
             ->emptyStateIcon('heroicon-o-computer-desktop')
             ->emptyStateHeading('Belum Ada Data Teknisi')

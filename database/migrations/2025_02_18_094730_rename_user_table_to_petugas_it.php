@@ -6,41 +6,38 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
-    {
-        // Hapus foreign key terlebih dahulu
-        Schema::table('detail_laporan', function (Blueprint $table) {
-            $table->dropForeign(['petugas_it']);
-        });
+    // public function up(): void
+    // {
+    //     // Hapus foreign key terlebih dahulu
+    //     Schema::table('detail_laporan', function (Blueprint $table) {
+    //         $table->dropForeign(['id_petugas_it']);
+    //     });
 
-        // Rename tabel user ke petugas_it
-        Schema::rename('user', 'petugas_it');
+    //     // Perbarui foreign key agar tetap menggunakan id
+    //     Schema::table('detail_laporan', function (Blueprint $table) {
+    //         $table->foreign('id_petugas_it')
+    //               ->references('id')
+    //               ->on('petugas_it')
+    //               ->onDelete('set null');
+    //     });
+    // }
 
-        // Perbarui foreign key agar tetap menggunakan id
-        Schema::table('detail_laporan', function (Blueprint $table) {
-            $table->foreign('petugas_it')
-                  ->references('id')
-                  ->on('petugas_it')
-                  ->onDelete('set null');
-        });
-    }
+    // public function down(): void
+    // {
+    //     // Hapus foreign key sebelum rename kembali tabel
+    //     Schema::table('detail_laporan', function (Blueprint $table) {
+    //         $table->dropForeign(['id_petugas_it']);
+    //     });
 
-    public function down(): void
-    {
-        // Hapus foreign key sebelum rename kembali tabel
-        Schema::table('detail_laporan', function (Blueprint $table) {
-            $table->dropForeign(['petugas_it']);
-        });
+    //     // Rename tabel kembali ke user
+    //     Schema::rename('petugas_it', 'user');
 
-        // Rename tabel kembali ke user
-        Schema::rename('petugas_it', 'user');
-
-        // Buat ulang foreign key yang mengarah ke tabel user
-        Schema::table('detail_laporan', function (Blueprint $table) {
-            $table->foreign('petugas_it')
-                  ->references('id')
-                  ->on('user')
-                  ->onDelete('set null');
-        });
-    }
+    //     // Buat ulang foreign key yang mengarah ke tabel user
+    //     Schema::table('detail_laporan', function (Blueprint $table) {
+    //         $table->foreign('petugas_it')
+    //               ->references('id')
+    //               ->on('user')
+    //               ->onDelete('set null');
+    //     });
+    // }
 };

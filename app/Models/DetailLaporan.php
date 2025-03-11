@@ -22,7 +22,7 @@ class DetailLaporan extends Model
         'waktu_pengerjaan',
         'numerator',
         'denominator',
-        'petugas_it',
+        'id_petugas_it',
         'nomor_pelapor',
         'status_laporan'
     ];
@@ -35,6 +35,6 @@ class DetailLaporan extends Model
 
     public function petugasIT(): BelongsTo
     {
-        return $this->belongsTo(PetugasIT::class, 'petugas_it', 'nama_petugas_it');
+        return $this->belongsTo(PetugasIT::class, 'id_petugas_it', 'id');
     }
 }

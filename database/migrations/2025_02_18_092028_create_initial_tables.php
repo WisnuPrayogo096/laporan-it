@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // Create user table
-        Schema::create('user', function (Blueprint $table) {
+        Schema::create('petugas_it', function (Blueprint $table) {
             $table->id(); // Primary Key (Big Integer, Auto Increment)
             $table->string('nomor_petugas', 50)->unique();
             $table->string('nama_petugas_it', 100)->unique();
@@ -34,15 +34,15 @@ return new class extends Migration
             $table->time('waktu_pengerjaan')->nullable();
             $table->integer('numerator')->nullable();
             $table->integer('denominator')->nullable();
-            $table->unsignedBigInteger('petugas_it')->nullable(); // Ubah ke tipe ID dari user
+            $table->unsignedBigInteger('id_petugas_it')->nullable();
             $table->string('nomor_pelapor', 20)->nullable();
-            $table->enum('status_laporan', ['Dalam Antrean', 'Diproses', 'Belum Dikonfirmasi', 'Selesai', 'Ditolak'])->default('Dalam Antrean');
+            $table->enum('status_laporan', ['Dalam Antrean', 'Diluar Jam Operasional', 'Diproses', 'Belum Dikonfirmasi', 'Selesai', 'Ditolak'])->default('Dalam Antrean');
             $table->timestamps();
 
             // Foreign key constraint ke tabel user
-            $table->foreign('petugas_it')
+            $table->foreign('id_petugas_it')
                 ->references('id')
-                ->on('user')
+                ->on('petugas_it')
                 ->onDelete('set null');
         });
 
