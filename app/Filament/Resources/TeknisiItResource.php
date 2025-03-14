@@ -48,12 +48,7 @@ class TeknisiItResource extends Resource
                     ->label('Nomor Telp'),
                 TextColumn::make('nama_petugas_it')
                     ->label('Nama Teknisi IT'),
-                TextColumn::make('jml_diproses')
-                    ->label('Diproses'),
-                TextColumn::make('jml_selesai')
-                    ->label('Selesai'),
-                TextColumn::make('jml_ditolak')
-                    ->label('Ditolak'),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

@@ -14,8 +14,6 @@ class DetailLaporanExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('No'),
             // ExportColumn::make('nmr_laporan'),
             ExportColumn::make('waktu_dihubungi')
                 ->label('Waktu dihubungi'),
@@ -36,7 +34,7 @@ class DetailLaporanExporter extends Exporter
                 ->label('Waktu pengerjaan'),
             ExportColumn::make('numerator'),
             ExportColumn::make('denominator'),
-            ExportColumn::make('petugas_it')
+            ExportColumn::make('petugasIT.nama_petugas_it')
                 ->label('Petugas IT'),
             // ExportColumn::make('nomor_pelapor'),
             // ExportColumn::make('status_laporan'),
